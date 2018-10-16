@@ -250,6 +250,7 @@ function inputChanged(){
     var domDate = document.getElementById('date');
     var domText = document.getElementById('text');
     var domLog = document.getElementById('log');
+    var domDateFormat = document.getElementById('localDateFormat');
 
     if (!domText.value){
         domLog.value = 'Enter text';
@@ -261,12 +262,17 @@ function inputChanged(){
         return;
     }
 
-    var res = getCommands(domText.value, domDate.value)
+    if (!domDateFormat.value){
+        domDateFormat.value = 'dd-mm-yyyy';
+        return;
+    }
+
+    var res = getCommands(domText.value, domDate.value, domDateFormat.value.toLowerCase())
 
     domLog.value = res;
 }
 
-function getCommands(str, dateFrom){
+function getCommands(str, dateFrom, domDateFormat){
     var d = new Date(dateFrom);
 
     var res = '';
@@ -282,7 +288,12 @@ function getCommands(str, dateFrom){
         for (var j = 0; j < c.length; j++)
         {
             if (c[j][i]) {
-                var strD = '' + padZero(d.getDate()) + '-' + padZero(d.getMonth() + 1) + '-' + d.getFullYear();
+                var strD = domDateFormat;
+                strD = strD.replace('dd',padZero(d.getDate()));
+                strD = strD.replace('mm',padZero(d.getMonth() + 1));
+                strD = strD.replace('yyyy',d.getFullYear());
+                strD = strD.replace('yy',d.getYear() - 100);
+
                 res += 'date ' + strD + '\n\r';
                 res += 'echo "' + strD + '" >> README.md' + '\n\r';
                 res += 'git add README.md' + '\n\r';
